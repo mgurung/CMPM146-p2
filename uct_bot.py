@@ -30,34 +30,34 @@ def think(state, quip):
 		total_score = 0.0
 		iterations += 1
 
-		for i in range(ROLLOUTS):
-			node = rootnode
-			rollout_state = state.copy()
+		
+		node = rootnode
+		rollout_state = state.copy()
 
-			# Select
-			while node.untried_moves == [] and node.children != []: # node is fully expanded and non-terminal
-				node = node.UCTSelectChild(rollout_state)
-				rollout_state.apply_move(node.move)
+		# Select
+		while node.untried_moves == [] and node.children != []: # node is fully expanded and non-terminal
+			node = node.UCTSelectChild(rollout_state)
+			rollout_state.apply_move(node.move)
 
-			# Expand
-			if node.untried_moves != []: # if we can expand (i.e. state/node is non-terminal)
-				m = random.choice(node.untried_moves) 
-				rollout_state.apply_move(m)
-				node = node.AddChild(m,rollout_state) # add child and descend tree
+		# Expand
+		if node.untried_moves != []: # if we can expand (i.e. state/node is non-terminal)
+			m = random.choice(node.untried_moves) 
+			rollout_state.apply_move(m)
+			node = node.AddChild(m,rollout_state) # add child and descend tree
 
-			# Rollout - this can often be made orders of magnitude quicker using a state.GetRandomMove() function
-			while rollout_state.get_moves() != []: # while state is non-terminal
-				rollout_state.apply_move(random.choice(rollout_state.get_moves()))
+		# Rollout - this can often be made orders of magnitude quicker using a state.GetRandomMove() function
+		while rollout_state.get_moves() != []: # while state is non-terminal
+			rollout_state.apply_move(random.choice(rollout_state.get_moves()))
 
-			# Backpropagate
-			while node != None: # backpropagate from the expanded node and work back to the root node
+		# Backpropagate
+		while node != None: # backpropagate from the expanded node and work back to the root node
 			
-				node.Update(outcome(rollout_state.get_score())) # state is terminal. Update node with result from POV of node.playerJustMoved
-				node = node.parent
+			node.Update(outcome(rollout_state.get_score())) # state is terminal. Update node with result from POV of node.playerJustMoved
+			node = node.parent
 			
-			t_now = time.time()
-			if t_now > t_deadline:
-				break
+		t_now = time.time()
+		if t_now > t_deadline:
+			break
 
 	#sample_rate = float(iterations)/(t_now - t_start)		
 	
