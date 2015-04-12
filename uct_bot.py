@@ -2,8 +2,6 @@ from math import *
 import random
 import time
 
-ROLLOUTS = 10
-MAX_DEPTH = 5
 THINKTIME = 1
 
 def think(state, quip):
@@ -28,7 +26,7 @@ def think(state, quip):
 	for move in moves:
 
 		total_score = 0.0
-		iterations += 1
+		iterations += THINKTIME
 
 		
 		node = rootnode
@@ -51,11 +49,12 @@ def think(state, quip):
 
 		# Backpropagate
 		while node != None: # backpropagate from the expanded node and work back to the root node
-			
 			node.Update(outcome(rollout_state.get_score())) # state is terminal. Update node with result from POV of node.playerJustMoved
 			node = node.parent
 			
 		t_now = time.time()
+		#print "times are", t_now, t_start
+		#sample_rate = float(iterations)/(t_now - t_start)
 		if t_now > t_deadline:
 			break
 
