@@ -19,7 +19,7 @@ def think(state, quip):
     print "turn of ", rootnode.who
 
     def outcome(score):
-        if rootnode.who == 'red':
+        if node.who == 'red':
             return score['red'] - score['blue']
         else:
             return score['blue'] - score['red']
