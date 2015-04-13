@@ -10,16 +10,16 @@ import random
 THINK_DURATION = 1
 
 def think(state, quip):
+
     t_start = time.time()
     t_deadline = t_start + THINK_DURATION
 
     iterations = 0
+    time_limit_reached = False
 
-    rootnode = Node(state = state)    
-    print "turn of ", rootnode.who
-
+    rootnode = Node(state = state)   
     def outcome(score):
-        if rootnode.who == 'red':
+        if node.who == 'red':
             return score['red'] - score['blue']
         else:
             return score['blue'] - score['red']
@@ -31,12 +31,13 @@ def think(state, quip):
 
     while True:
         iterations += 1
+        
         node = rootnode
         rollout_state = state.copy()
 
 
         # select 
-        while node.children != []:
+        while not rollout_state.is_terminal() and node.children != []:
             node = node.select_child()
             rollout_state.apply_move(node.move)
 
@@ -45,21 +46,27 @@ def think(state, quip):
             m = random.choice(node.untried_moves) 
             rollout_state.apply_move(m)
             node = node.add_child(m,rollout_state) # add child and descend tree
+        terminate = 0
+        while not (rollout_state.is_terminal()) and terminate < 5: # while state is non-terminal
+            if rollout_state.is_terminal():
+                    break
+            rollout_move = random.choice(rollout_state.get_moves())
+            rollout_state.apply_move(rollout_move)
+            terminate += 1
 
-        while not rollout_state.is_terminal(): # while state is non-terminal
-            rollout_state.apply_move(random.choice(rollout_state.get_moves()))
 
         # Backpropagate
         while node != None: # backpropagate from the expanded node and work back to the root node
             node.update(outcome(rollout_state.get_score())) # state is terminal. Update node with result from POV of node.playerJustMoved
             node = node.parent
-            
-        # if its been more than a second then the it exits from the loop     
+        
         t_now = time.time()
         if t_now > t_deadline:
+            time_limit_reached = True
             break
-
             
+        # if its been more than a second then the it exits from the loop    
+
 
     sample_rate = float(iterations)/(t_now - t_start)
     print "iterations per second is : ", sample_rate 
